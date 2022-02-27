@@ -4,18 +4,6 @@ HeatingRod::HeatingRod(std::string name, float power): PowerSink(name){
     set_requesting_power(power, power);
 }
 
-void HeatingRod::init_temperature_hysteresis(){
-    if(!read_temperature)
-        return;
-    auto temp = read_temperature();
-    if(temp < temperature_hysteresis.min){
-        temperature_hysteresis.state = TemperatureHysteresis::State::over;
-    }
-    else if(temp > temperature_hysteresis.max){
-        temperature_hysteresis.state = TemperatureHysteresis::State::under;
-    }
-}
-
 float HeatingRod::using_power(){
     return get_allowed_power();
 }
@@ -75,13 +63,11 @@ bool HeatingRod::allow_power(float power){
     }
 
     last_read_temperature = read_temperature();
-    if(last_read_temperature > temperature_hysteresis.max && temperature_hysteresis.state == TemperatureHysteresis::State::under){
-        temperature_hysteresis.state = TemperatureHysteresis::State::over;
+    if(last_read_temperature > temperature_hysteresis.max){
         turn_off();
     }
-    else if(last_read_temperature < temperature_hysteresis.min && temperature_hysteresis.state == TemperatureHysteresis::State::over){
+    else if(last_read_temperature < temperature_hysteresis.min){
         if(power >= get_requesting_power().get_min()){
-            temperature_hysteresis.state = TemperatureHysteresis::State::under;
             return turn_on();
         }
         else{

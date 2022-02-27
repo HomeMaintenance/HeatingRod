@@ -20,13 +20,7 @@ public:
     struct TemperatureHysteresis{
         float min = 45;
         float max = 50;
-        enum State{
-            under,
-            over
-        } state = State::under;
     } temperature_hysteresis;
-
-    void init_temperature_hysteresis();
 
     enum State{
         ready,

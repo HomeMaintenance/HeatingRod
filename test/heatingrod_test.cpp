@@ -20,19 +20,16 @@ public:
 
 TEST_F(HeatingRodTest, TempBelowMin){
     heatingRod->read_temperature = []()->float{return 42.23f;};
-    heatingRod->init_temperature_hysteresis();
     EXPECT_TRUE(heatingRod->allow_power(1200));
 }
 
 TEST_F(HeatingRodTest, TempBetweenMinAndMax){
     heatingRod->read_temperature = []()->float{return 47.23f;};
-    heatingRod->init_temperature_hysteresis();
     EXPECT_FALSE(heatingRod->allow_power(1200));
 }
 
 TEST_F(HeatingRodTest, TempReachedMax){
     heatingRod->read_temperature = []()->float{return 53.23f;};
-    heatingRod->init_temperature_hysteresis();
     EXPECT_FALSE(heatingRod->allow_power(1200));
 }
 

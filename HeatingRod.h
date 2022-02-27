@@ -13,7 +13,7 @@ public:
 
     struct Timing{
         clock_t min_on = 0;
-        clock_t max_on = 5000;//std::numeric_limits<clock_t>::max();
+        clock_t max_on = std::numeric_limits<clock_t>::max();
         clock_t min_off = 0;
     } timing;
 
@@ -31,7 +31,7 @@ public:
     std::function<void(bool)> switch_power;
     std::function<float()> read_temperature;
 
-    bool on;
+    bool on = false;
 
 protected:
 

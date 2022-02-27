@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 project(headtingrod CXX)
 
+enable_testing()
+
 add_subdirectory(test)
 
 include(FetchContent)

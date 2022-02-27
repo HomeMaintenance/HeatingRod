@@ -1,5 +1,4 @@
 find_package(GTest CONFIG REQUIRED)
-enable_testing()
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 

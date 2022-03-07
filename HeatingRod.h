@@ -13,7 +13,7 @@ public:
 
     struct Timing{
         clock_t min_on = 0;
-        clock_t max_on = std::numeric_limits<clock_t>::max();
+        clock_t max_on = 1000*60*60*3;
         clock_t min_off = 0;
     } timing;
 
@@ -33,6 +33,9 @@ public:
 
     bool on = false;
 
+    clock_t on_time() const;
+    clock_t off_time() const;
+
 protected:
 
 private:
@@ -41,6 +44,6 @@ private:
     bool check_max_on();
 
     float last_read_temperature;
-    clock_t time_turn_on = 0;
-    clock_t time_turn_off = 0;
+    clock_t time_turn_on = -1;
+    clock_t time_turn_off = -1;
 };

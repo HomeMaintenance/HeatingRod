@@ -11,7 +11,7 @@ float HeatingRod::using_power(){
 
 bool HeatingRod::turn_on(){
     clock_t time_now = clock();
-    if(time_now > time_turn_off + timing.min_off){
+    if(time_now >= (time_turn_off + timing.min_off) || time_turn_off < 0){
         if(!on){
             time_turn_on = time_now;
             set_allowed_power(get_requesting_power().get_min());
@@ -33,7 +33,7 @@ bool HeatingRod::turn_on(){
 
 bool HeatingRod::turn_off(){
     clock_t time_now = clock();
-    if(time_now > time_turn_on + timing.min_on){
+    if(time_now >= (time_turn_on + timing.min_on) || time_turn_on < 0){
         if(on){
             time_turn_off = time_now;
             set_allowed_power(0);
@@ -54,8 +54,11 @@ bool HeatingRod::turn_off(){
 }
 
 bool HeatingRod::check_max_on(){
+    if(time_turn_on < 0){
+        return false;
+    }
     clock_t time_now = clock();
-    if(time_now > time_turn_on + timing.max_on){
+    if(time_now > (time_turn_on + timing.max_on)){
         return true;
     }
     return false;
@@ -94,4 +97,20 @@ bool HeatingRod::allow_power(float power){
     else{
         return true;
     }
+}
+
+clock_t HeatingRod::on_time() const{
+    if(time_turn_on < 0)
+        return time_turn_on;
+    clock_t time_now = clock();
+    clock_t result = time_now - time_turn_on;
+    return result;
+}
+
+clock_t HeatingRod::off_time() const{
+    if(time_turn_off < 0)
+        return time_turn_off;
+    clock_t time_now = clock();
+    clock_t result = time_now - time_turn_off;
+    return result;
 }

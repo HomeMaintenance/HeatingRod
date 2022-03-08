@@ -58,7 +58,7 @@ bool HeatingRod::check_max_on(){
         return false;
     }
     clock_t time_now = clock();
-    if(time_now > (time_turn_on + timing.max_on)){
+    if(on && time_now > (time_turn_on + timing.max_on)){
         return true;
     }
     return false;

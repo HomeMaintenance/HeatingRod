@@ -286,7 +286,10 @@ TEST_F(HeatingRodTest, MaxMinTimeOn){
     std::vector<TestResult> expected = {
         TestResult(true, heatingRod->get_requesting_power().get_min(),0,-1),
         TestResult(true, heatingRod->get_requesting_power().get_min(),1000,-1),
-        TestResult(false, 0.f,2000,0)
+        TestResult(false, 0.f, 2000, 0),
+        TestResult(false, 0.f, 3000, 1000),
+        TestResult(true, heatingRod->get_requesting_power().get_min(), 0, 2000),
+        TestResult(true, heatingRod->get_requesting_power().get_min(), 1000, 3000)
     };
 
     EXPECT_EQ(result, expected);

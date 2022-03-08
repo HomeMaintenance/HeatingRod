@@ -6,6 +6,7 @@
 class HeatingRod: public PowerSink{
 public:
     HeatingRod(std::string name, float power);
+    HeatingRod(const HeatingRod& other) = delete;
     virtual ~HeatingRod() = default;
 
     virtual float using_power() override;

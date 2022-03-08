@@ -144,7 +144,7 @@ public:
         return true;
     }
 
-    clock_t tolerance = 50;
+    static const clock_t tolerance = 50;
 
 private:
     bool on;
@@ -177,6 +177,78 @@ TEST_F(HeatingRodTest, MaxTimeOn){
         TestResult(true, heatingRod->get_requesting_power().get_min(),0,-1),
         TestResult(true, heatingRod->get_requesting_power().get_min(),1000,-1),
         TestResult(false, 0.f,2000,0)
+    };
+
+    EXPECT_EQ(result, expected);
+}
+
+TEST_F(HeatingRodTest, MinTimeOn){
+    auto heatingRod = heatingRodGenerator();
+    float temperature = 42.23f;
+    heatingRod->read_temperature = [temperature]() mutable -> float{
+        // std::cout << "Temperature: " << temperature << std::endl;
+        float result = temperature;
+        temperature += 0.1f;
+        return result;
+    };
+    heatingRod->timing.min_on = 1500;
+
+    std::vector<TestResult> result;
+
+    heatingRod->allow_power(1200);
+    result.push_back(TestResult(heatingRod->on,heatingRod->using_power(),heatingRod->on_time(), heatingRod->off_time()));
+
+    const clock_t start = clock();
+    while (start + 3000 > clock()){
+        heatingRod->allow_power(0);
+        result.push_back(TestResult(heatingRod->on,heatingRod->using_power(),heatingRod->on_time(), heatingRod->off_time()));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    std::vector<TestResult> expected = {
+        TestResult(true, heatingRod->get_requesting_power().get_min(), 0, -1),
+        TestResult(true, heatingRod->get_requesting_power().get_min(), 0, -1),
+        TestResult(true, heatingRod->get_requesting_power().get_min(), 1000, -1),
+        TestResult(false, 0, 2000, 0),
+    };
+
+    EXPECT_EQ(result, expected);
+}
+
+TEST_F(HeatingRodTest, MinTimeOff){
+    auto heatingRod = heatingRodGenerator();
+    float temperature = 42.23f;
+    heatingRod->read_temperature = [temperature]() mutable -> float{
+        // std::cout << "Temperature: " << temperature << std::endl;
+        float result = temperature;
+        temperature += 0.1f;
+        return result;
+    };
+    heatingRod->timing.min_off = 1200;
+
+    std::vector<TestResult> result;
+
+    std::vector<float> pwr_steps = {
+        1200,
+        0,
+        1200,
+        1200,
+        1200
+    };
+
+    const clock_t start = clock();
+    for(const auto& pwr: pwr_steps){
+        heatingRod->allow_power(pwr);
+        result.push_back(TestResult(heatingRod->on,heatingRod->using_power(),heatingRod->on_time(), heatingRod->off_time()));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    std::vector<TestResult> expected = {
+        TestResult(true, heatingRod->get_requesting_power().get_min(), 0, -1),
+        TestResult(false, 0, 1000, 0),
+        TestResult(false, 0, 2000, 1000),
+        TestResult(true, heatingRod->get_requesting_power().get_min(), 0, 2000),
+        TestResult(true, heatingRod->get_requesting_power().get_min(), 1000, 3000),
     };
 
     EXPECT_EQ(result, expected);

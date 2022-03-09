@@ -14,11 +14,11 @@ public:
     }
 };
 
-std::unique_ptr<HeatingRod> heatingRodGenerator(){
-    auto hr = std::make_unique<HeatingRod>("heatingRod0",1000.f);
+std::shared_ptr<HeatingRod> heatingRodGenerator(){
+    auto hr = std::make_shared<HeatingRod>("heatingRod0",1000.f);
     hr->switch_power = [](bool power){std::cout << "\t>>> switch_power to " << power << std::endl;};
     std::cout << "hr memory: "<< hr.get() << std::endl;
-    return std::move(hr);
+    return hr;
 }
 
 TEST_F(HeatingRodTest, TurnOn0){
@@ -236,7 +236,6 @@ TEST_F(HeatingRodTest, MinTimeOff){
         1200
     };
 
-    const clock_t start = clock();
     for(const auto& pwr: pwr_steps){
         heatingRod->allow_power(pwr);
         result.push_back(TestResult(heatingRod->on,heatingRod->using_power(),heatingRod->on_time(), heatingRod->off_time()));

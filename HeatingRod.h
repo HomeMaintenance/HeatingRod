@@ -37,6 +37,8 @@ public:
     clock_t on_time() const;
     clock_t off_time() const;
 
+    virtual Json::Value serialize() override;
+
 protected:
 
 private:

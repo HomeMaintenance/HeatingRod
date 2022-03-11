@@ -19,8 +19,8 @@ public:
     } timing;
 
     struct TemperatureHysteresis{
-        float min = 45;
-        float max = 50;
+        float min = 55;
+        float max = 65;
     } temperature_hysteresis;
 
     enum State{

@@ -29,7 +29,7 @@ public:
         min_time_on
     } state = State::ready;
 
-    std::function<void(bool)> switch_power;
+    void set_switch_power(std::function<void(bool)> switch_power);
     std::function<float()> read_temperature;
 
     bool on = false;
@@ -49,4 +49,6 @@ private:
     float last_read_temperature;
     clock_t time_turn_on = -1;
     clock_t time_turn_off = -1;
+
+    std::function<void(bool)> switch_power;
 };

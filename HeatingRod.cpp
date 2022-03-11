@@ -3,11 +3,17 @@
 
 HeatingRod::HeatingRod(std::string name, float power): PowerSink(name){
     set_requesting_power(power, power);
-    switch_power(false);
 }
 
 float HeatingRod::using_power(){
     return get_allowed_power();
+}
+
+void HeatingRod::set_switch_power(std::function<void(bool)> _switch_power){
+    if(!_switch_power)
+        return;
+    switch_power = _switch_power;
+    switch_power(false);
 }
 
 bool HeatingRod::turn_on(){

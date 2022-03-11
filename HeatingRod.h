@@ -14,8 +14,10 @@ public:
 
     struct Timing{
         clock_t min_on = 0;
-        clock_t max_on = 1000*60*60*3;
+        clock_t max_on = 1000*60*60*3; // set zero for infinity
         clock_t min_off = 0;
+        clock_t on = 0;
+        clock_t off = 0;
     } timing;
 
     struct TemperatureHysteresis{
@@ -34,8 +36,8 @@ public:
 
     bool on = false;
 
-    clock_t on_time() const;
-    clock_t off_time() const;
+    clock_t on_time();
+    clock_t off_time();
 
     virtual Json::Value serialize() override;
 

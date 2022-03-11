@@ -18,8 +18,10 @@ void HeatingRod::set_switch_power(std::function<void(bool)> _switch_power){
 
 bool HeatingRod::turn_on(){
     clock_t time_now = clock();
-    if(time_now >= (time_turn_off + timing.min_off) || time_turn_off < 0){
+    bool init_condition = time_turn_off < 0;
+    if(time_now >= (time_turn_off + timing.min_off) || init_condition){
         if(!on){
+            off_time(); // update off duration
             time_turn_on = time_now;
             set_allowed_power(get_requesting_power().get_min());
             switch_power(true);
@@ -40,8 +42,10 @@ bool HeatingRod::turn_on(){
 
 bool HeatingRod::turn_off(){
     clock_t time_now = clock();
-    if(time_now >= (time_turn_on + timing.min_on) || time_turn_on < 0){
+    bool init_condition = time_turn_on < 0;
+    if(time_now >= (time_turn_on + timing.min_on) || init_condition){
         if(on){
+            on_time(); // update on duration
             time_turn_off = time_now;
             set_allowed_power(0);
             switch_power(false);
@@ -61,9 +65,10 @@ bool HeatingRod::turn_off(){
 }
 
 bool HeatingRod::check_max_on(){
-    if(time_turn_on < 0){
+    if(time_turn_on < 0)
         return false;
-    }
+    if(timing.max_on == 0)
+        return false;
     clock_t time_now = clock();
     if(on && time_now > (time_turn_on + timing.max_on)){
         return true;
@@ -106,19 +111,25 @@ bool HeatingRod::allow_power(float power){
     }
 }
 
-clock_t HeatingRod::on_time() const{
+clock_t HeatingRod::on_time(){
     if(time_turn_on < 0)
         return time_turn_on;
+    if(!on)
+        return timing.on;
     clock_t time_now = clock();
     clock_t result = time_now - time_turn_on;
+    timing.on = result;
     return result;
 }
 
-clock_t HeatingRod::off_time() const{
+clock_t HeatingRod::off_time(){
     if(time_turn_off < 0)
         return time_turn_off;
+    if(on)
+        return timing.off;
     clock_t time_now = clock();
     clock_t result = time_now - time_turn_off;
+    timing.off = result;
     return result;
 }
 

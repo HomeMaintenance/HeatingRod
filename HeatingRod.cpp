@@ -129,6 +129,7 @@ Json::Value HeatingRod::serialize(){
     timing_json["on_time"] = static_cast<int32_t>(on_time());
     timing_json["off_time"] = static_cast<int32_t>(off_time());
     result["timing"] = timing_json;
+    result["temperature"] = read_temperature();
 
     result["state"] = state;
     return result;

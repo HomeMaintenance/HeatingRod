@@ -9,6 +9,8 @@ public:
     HeatingRod(const HeatingRod& other) = delete;
     virtual ~HeatingRod() = default;
 
+    static const std::string type;
+
     virtual float using_power() override;
     virtual bool allow_power(float power) override;
 

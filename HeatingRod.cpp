@@ -1,6 +1,8 @@
 #include "HeatingRod.h"
 #include <iostream>
 
+const std::string HeatingRod::type = "heatingRod";
+
 HeatingRod::HeatingRod(std::string name, float power): PowerSink(name){
     set_requesting_power(power, power);
 }
@@ -135,6 +137,7 @@ clock_t HeatingRod::off_time(){
 
 Json::Value HeatingRod::serialize(){
     Json::Value result = PowerSink::serialize();
+    result["type"] = type;
 
     Json::Value timing_json;
     timing_json["on_time"] = static_cast<int32_t>(on_time());

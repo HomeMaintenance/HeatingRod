@@ -142,8 +142,16 @@ Json::Value HeatingRod::serialize(){
     Json::Value timing_json;
     timing_json["on_time"] = static_cast<int32_t>(on_time());
     timing_json["off_time"] = static_cast<int32_t>(off_time());
+    timing_json["min_on"] = static_cast<int32_t>(timing.min_on);
+    timing_json["max_on"] = static_cast<int32_t>(timing.max_on);
+    timing_json["min_off"] = static_cast<int32_t>(timing.min_off);
     result["timing"] = timing_json;
-    result["temperature"] = read_temperature();
+
+    Json::Value temperature_json;
+    temperature_json["sensor"] = read_temperature();
+    temperature_json["min"] = temperature_hysteresis.min;
+    temperature_json["max"] = temperature_hysteresis.max;
+    result["temperature"] = temperature_json;
 
     result["state"] = state;
     return result;

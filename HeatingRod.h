@@ -1,7 +1,10 @@
 #pragma once
 #include <functional>
-#include <ctime>
+#include <chrono>
 #include <PowerSink.h>
+
+using milliseconds = std::chrono::duration<double, std::milli>;
+using steady_clock = std::chrono::steady_clock;
 
 class HeatingRod: public PowerSink{
 public:
@@ -15,11 +18,11 @@ public:
     virtual bool allow_power(float power) override;
 
     struct Timing{
-        clock_t min_on = 0;
-        clock_t max_on = 1000*60*60*3; // set zero for infinity
-        clock_t min_off = 0;
-        clock_t on = 0;
-        clock_t off = 0;
+        milliseconds min_on{0};
+        milliseconds max_on{1000*60*60*3}; // set zero for infinity
+        milliseconds min_off{0};
+        milliseconds on{0};
+        milliseconds off{0};
     } timing;
 
     struct TemperatureHysteresis{
@@ -38,8 +41,8 @@ public:
 
     bool on = false;
 
-    clock_t on_time();
-    clock_t off_time();
+    milliseconds on_time();
+    milliseconds off_time();
 
     virtual Json::Value serialize() override;
 
@@ -51,8 +54,8 @@ private:
     bool check_max_on();
 
     float last_read_temperature;
-    clock_t time_turn_on = -1;
-    clock_t time_turn_off = -1;
+    milliseconds time_turn_on{-1};
+    milliseconds time_turn_off{-1};
 
     std::function<void(bool)> switch_power;
 };

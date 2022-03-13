@@ -19,8 +19,8 @@ void HeatingRod::set_switch_power(std::function<void(bool)> _switch_power){
 }
 
 bool HeatingRod::turn_on(){
-    clock_t time_now = clock();
-    bool init_condition = time_turn_off < 0;
+    milliseconds time_now = steady_clock::now().time_since_epoch();
+    bool init_condition = time_turn_off.count() < 0;
     if(time_now >= (time_turn_off + timing.min_off) || init_condition){
         if(!on){
             off_time(); // update off duration
@@ -43,8 +43,8 @@ bool HeatingRod::turn_on(){
 }
 
 bool HeatingRod::turn_off(){
-    clock_t time_now = clock();
-    bool init_condition = time_turn_on < 0;
+    milliseconds time_now = steady_clock::now().time_since_epoch();
+    bool init_condition = time_turn_on.count() < 0;
     if(time_now >= (time_turn_on + timing.min_on) || init_condition){
         if(on){
             on_time(); // update on duration
@@ -67,11 +67,11 @@ bool HeatingRod::turn_off(){
 }
 
 bool HeatingRod::check_max_on(){
-    if(time_turn_on < 0)
+    if(time_turn_on.count() < 0)
         return false;
-    if(timing.max_on == 0)
+    if(timing.max_on.count() == 0)
         return false;
-    clock_t time_now = clock();
+    milliseconds time_now = steady_clock::now().time_since_epoch();
     if(on && time_now > (time_turn_on + timing.max_on)){
         return true;
     }
@@ -113,24 +113,24 @@ bool HeatingRod::allow_power(float power){
     }
 }
 
-clock_t HeatingRod::on_time(){
-    if(time_turn_on < 0)
+milliseconds HeatingRod::on_time(){
+    if(time_turn_on.count() < 0)
         return time_turn_on;
     if(!on)
         return timing.on;
-    clock_t time_now = clock();
-    clock_t result = time_now - time_turn_on;
+    milliseconds time_now = steady_clock::now().time_since_epoch();
+    milliseconds result = time_now - time_turn_on;
     timing.on = result;
     return result;
 }
 
-clock_t HeatingRod::off_time(){
-    if(time_turn_off < 0)
+milliseconds HeatingRod::off_time(){
+    if(time_turn_off.count() < 0)
         return time_turn_off;
     if(on)
         return timing.off;
-    clock_t time_now = clock();
-    clock_t result = time_now - time_turn_off;
+    milliseconds time_now = steady_clock::now().time_since_epoch();
+    milliseconds result = time_now - time_turn_off;
     timing.off = result;
     return result;
 }
@@ -140,11 +140,11 @@ Json::Value HeatingRod::serialize(){
     result["type"] = type;
 
     Json::Value timing_json;
-    timing_json["on_time"] = static_cast<int32_t>(on_time());
-    timing_json["off_time"] = static_cast<int32_t>(off_time());
-    timing_json["min_on"] = static_cast<int32_t>(timing.min_on);
-    timing_json["max_on"] = static_cast<int32_t>(timing.max_on);
-    timing_json["min_off"] = static_cast<int32_t>(timing.min_off);
+    timing_json["on_time"] = static_cast<int32_t>(on_time().count());
+    timing_json["off_time"] = static_cast<int32_t>(off_time().count());
+    timing_json["min_on"] = static_cast<int32_t>(timing.min_on.count());
+    timing_json["max_on"] = static_cast<int32_t>(timing.max_on.count());
+    timing_json["min_off"] = static_cast<int32_t>(timing.min_off.count());
     result["timing"] = timing_json;
 
     Json::Value temperature_json;

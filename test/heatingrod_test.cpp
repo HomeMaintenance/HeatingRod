@@ -9,7 +9,7 @@ public:
 
     virtual void SetUp() override {
         heatingRod = std::make_unique<HeatingRod>("heatingRod0",1000.f);
-        heatingRod->timing.max_on = 0; // infinite
+        heatingRod->timing.max_on = std::chrono::duration<int,std::milli>(0); // infinite
         heatingRod->temperature_hysteresis.max = 50;
         heatingRod->temperature_hysteresis.min = 45;
         heatingRod->set_switch_power([this](bool power){
@@ -96,7 +96,7 @@ TEST_F(HeatingRodTest, TurnOff1){
 
 TEST_F(HeatingRodTest, TurnOff2){
     // Test min time on
-    heatingRod->timing.min_on = 1200;
+    heatingRod->timing.min_on = milliseconds(1200);
     heatingRod->read_temperature = []()->float{return 42.23f;};
     EXPECT_TRUE(heatingRod->allow_power(1200));
     EXPECT_EQ(heatingRod->using_power(), heatingRod->get_requesting_power().get_min());
@@ -148,12 +148,20 @@ TEST_F(HeatingRodTest, TempReachedMax){
 
 class TestResult{
 public:
-    TestResult(bool _on, float _power, clock_t _time_on, clock_t _time_off):
+    TestResult(bool _on, float _power, milliseconds _time_on, milliseconds _time_off):
         on(_on),
         power(_power),
         time_on(_time_on),
         time_off(_time_off)
     {};
+
+    TestResult(bool _on, float _power, int _time_on, int _time_off):
+        on(_on),
+        power(_power)
+    {
+        time_on = milliseconds(_time_on);
+        time_off = milliseconds(_time_off);
+    };
 
     bool operator==(const TestResult& rhs) const {
         if(on != rhs.on){
@@ -168,26 +176,26 @@ public:
 
         if(abs(time_on - rhs.time_on) > tolerance)
         {
-            std::cout << "lhs.time_on: "<< time_on << ", rhs.time_on: "<<rhs.time_on << std::endl;
+            std::cout << "lhs.time_on: "<< time_on.count() << ", rhs.time_on: "<<rhs.time_on.count() << std::endl;
             return false;
         }
 
         if(abs(time_off - rhs.time_off) > tolerance)
         {
-            std::cout << "lhs.time_off: "<< time_off << ", rhs.time_off: "<<rhs.time_off << std::endl;
+            std::cout << "lhs.time_off: "<< time_off.count() << ", rhs.time_off: "<<rhs.time_off.count() << std::endl;
             return false;
         }
 
         return true;
     }
 
-    static const clock_t tolerance = 50;
+    static inline const milliseconds tolerance{50};
 
 private:
     bool on;
     float power;
-    clock_t time_on;
-    clock_t time_off;
+    milliseconds time_on;
+    milliseconds time_off;
 };
 
 TEST_F(HeatingRodTest, MaxTimeOn){
@@ -198,7 +206,7 @@ TEST_F(HeatingRodTest, MaxTimeOn){
         temperature += 0.1f;
         return result;
     };
-    heatingRod->timing.max_on = 200;
+    heatingRod->timing.max_on = milliseconds(200);
 
     std::vector<TestResult> result;
 
@@ -233,7 +241,7 @@ TEST_F(HeatingRodTest, MinTimeOn){
         temperature += 0.1f;
         return result;
     };
-    heatingRod->timing.min_on = 300;
+    heatingRod->timing.min_on = milliseconds(300);
 
     std::vector<TestResult> result;
 
@@ -270,7 +278,7 @@ TEST_F(HeatingRodTest, MinTimeOff){
         temperature += 0.1f;
         return result;
     };
-    heatingRod->timing.min_off = 240;
+    heatingRod->timing.min_off = milliseconds(240);
 
     std::vector<TestResult> result;
 
@@ -310,8 +318,8 @@ TEST_F(HeatingRodTest, MaxMinTimeOn){
         temperature += 0.1f;
         return result;
     };
-    heatingRod->timing.max_on = 400;
-    heatingRod->timing.min_off = 240;
+    heatingRod->timing.max_on = milliseconds(400);
+    heatingRod->timing.min_off = milliseconds(240);
 
     std::vector<TestResult> result;
 

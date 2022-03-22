@@ -46,6 +46,7 @@ public:
 
     virtual Json::Value serialize() override;
 
+    bool enable_log{false};
 protected:
 
 private:
@@ -58,4 +59,6 @@ private:
     milliseconds time_turn_off{-1};
 
     std::function<void(bool)> switch_power;
+
+    virtual void log(std::string message) const;
 };

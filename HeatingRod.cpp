@@ -31,14 +31,14 @@ bool HeatingRod::turn_on(){
         }
         else{
             // already turned on
-            // std::cout << "already turned on" << std::endl;
+            log("already turned on");
         }
         state = State::ready;
         return true;
     }
     // blocked by cool download
     state = State::cool_down;
-    // std::cout << "blocked by cool down" << std::endl;
+    log("blocked by cool down");
     return false;
 }
 
@@ -55,14 +55,14 @@ bool HeatingRod::turn_off(){
         }
         else{
             // already turned off
-            // std::cout << "already turned off" << std::endl;
+            log("already turned off");
         }
         state = State::ready;
         return true;
     }
     // blocked by min time on
     state = State::min_time_on;
-    // std::cout << "blocked by min time on" << std::endl;
+    log("blocked by min time on");
     return false;
 }
 
@@ -79,7 +79,7 @@ bool HeatingRod::check_max_on(){
 }
 
 bool HeatingRod::allow_power(float power){
-    // std::cout << "---------------------------" << std::endl;
+    log("---------------------------");
     if(!switch_power)
         return false;
 
@@ -87,25 +87,25 @@ bool HeatingRod::allow_power(float power){
         return false;
 
     if(check_max_on()){
-        // std::cout << "Max turned on -> force switch off" << std::endl;
+        log("Max turned on -> force switch off");
         turn_off();
         return false;
     }
 
     if(power < get_requesting_power().get_min()){
-        // std::cout << "Power not enough" << std::endl;
+        log("Power not enough");
         return turn_off();
     }
-    // std::cout << "Power enough" << std::endl;
+    log("Power enough");
 
     last_read_temperature = read_temperature();
     if(last_read_temperature > temperature_hysteresis.max){
-        // std::cout << "Heating not needed" << std::endl;
+        log("Heating not needed");
         turn_off();
         return false;
     }
     else if(last_read_temperature < temperature_hysteresis.min){
-        // std::cout << "Heating needed" << std::endl;
+        log("Heating needed");
         return turn_on();
     }
     else{
@@ -155,4 +155,10 @@ Json::Value HeatingRod::serialize(){
 
     result["state"] = state;
     return result;
+}
+
+void HeatingRod::log(std::string message) const
+{
+    if(enable_log)
+        std::cout << "-- "<< name << ": " << message << std::endl;
 }

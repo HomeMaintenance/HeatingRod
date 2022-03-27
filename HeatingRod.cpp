@@ -110,6 +110,10 @@ bool HeatingRod::allow_power(float power){
     }
     else{
         log("Inbetween hysteresis limits");
+        if(first_allow){
+            return turn_on();
+            first_allow = false;
+        }
         return true;
     }
 }

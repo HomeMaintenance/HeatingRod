@@ -60,5 +60,7 @@ private:
 
     std::function<void(bool)> switch_power;
 
+    bool first_allow = true;
+
     virtual void log(std::string message) const;
 };

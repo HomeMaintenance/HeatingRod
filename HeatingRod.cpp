@@ -99,7 +99,7 @@ bool HeatingRod::allow_power(float power){
     log("Power enough");
 
     last_read_temperature = read_temperature();
-    if(last_read_temperature > temperature_hysteresis.max){
+    if(last_read_temperature >= temperature_hysteresis.max){
         log("Heating not needed");
         turn_off();
         return false;

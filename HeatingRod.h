@@ -46,7 +46,9 @@ public:
 
     virtual Json::Value serialize() override;
 
-    bool enable_log{false};
+    void enable_log();
+    void disable_log();
+
 protected:
 
 private:
@@ -61,6 +63,8 @@ private:
     std::function<void(bool)> switch_power;
 
     bool first_allow = true;
+
+    bool _enable_log{false};
 
     virtual void log(std::string message) const;
 };

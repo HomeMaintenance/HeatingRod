@@ -162,8 +162,16 @@ Json::Value HeatingRod::serialize(){
     return result;
 }
 
+void HeatingRod::enable_log(){
+    _enable_log = true;
+}
+
+void HeatingRod::disable_log(){
+    _enable_log = false;
+}
+
 void HeatingRod::log(std::string message) const
 {
-    if(enable_log)
+    if(_enable_log)
         std::cout << "-- "<< name << ": " << message << std::endl;
 }

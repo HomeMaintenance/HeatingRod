@@ -4,6 +4,7 @@
 const std::string HeatingRod::type = "heatingRod";
 
 HeatingRod::HeatingRod(std::string name, float power): PowerSink(name){
+    set_time_provider(*TimeProvider::getInstance());
     set_requesting_power(power, power);
 }
 
@@ -19,7 +20,7 @@ void HeatingRod::set_switch_power(std::function<void(bool)> _switch_power){
 }
 
 bool HeatingRod::turn_on(){
-    milliseconds time_now = steady_clock::now().time_since_epoch();
+    milliseconds time_now = timeprovider->get_time();
     bool init_condition = time_turn_off.count() < 0;
     if(time_now >= (time_turn_off + timing.min_off) || init_condition){
         if(!on){
@@ -43,7 +44,7 @@ bool HeatingRod::turn_on(){
 }
 
 bool HeatingRod::turn_off(){
-    milliseconds time_now = steady_clock::now().time_since_epoch();
+    milliseconds time_now = timeprovider->get_time();
     bool init_condition = time_turn_on.count() < 0;
     if(time_now >= (time_turn_on + timing.min_on) || init_condition){
         if(on){
@@ -71,7 +72,7 @@ bool HeatingRod::check_max_on(){
         return false;
     if(timing.max_on.count() == 0)
         return false;
-    milliseconds time_now = steady_clock::now().time_since_epoch();
+    milliseconds time_now = timeprovider->get_time();
     if(on && time_now > (time_turn_on + timing.max_on)){
         return true;
     }
@@ -123,7 +124,7 @@ milliseconds HeatingRod::on_time(){
         return time_turn_on;
     if(!on)
         return timing.on;
-    milliseconds time_now = steady_clock::now().time_since_epoch();
+    milliseconds time_now = timeprovider->get_time();
     milliseconds result = time_now - time_turn_on;
     timing.on = result;
     return result;
@@ -134,7 +135,7 @@ milliseconds HeatingRod::off_time(){
         return time_turn_off;
     if(on)
         return timing.off;
-    milliseconds time_now = steady_clock::now().time_since_epoch();
+    milliseconds time_now = timeprovider->get_time();
     milliseconds result = time_now - time_turn_off;
     timing.off = result;
     return result;
@@ -168,6 +169,10 @@ void HeatingRod::enable_log(){
 
 void HeatingRod::disable_log(){
     _enable_log = false;
+}
+
+void HeatingRod::set_time_provider(TimeProvider& _timeprovider){
+    timeprovider = &_timeprovider;
 }
 
 void HeatingRod::log(std::string message) const

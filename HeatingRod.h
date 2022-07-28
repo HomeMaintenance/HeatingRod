@@ -1,10 +1,8 @@
 #pragma once
 #include <functional>
-#include <chrono>
 #include <PowerSink.h>
+#include <TimeProvider.h>
 
-using milliseconds = std::chrono::duration<double, std::milli>;
-using steady_clock = std::chrono::steady_clock;
 
 class HeatingRod: public PowerSink{
 public:
@@ -49,7 +47,10 @@ public:
     void enable_log();
     void disable_log();
 
+    void set_time_provider(TimeProvider& timeprovider);
+
 protected:
+    TimeProvider* timeprovider;
 
 private:
     bool turn_on();

@@ -2,13 +2,16 @@
 #include <chrono>
 #include <gtest/gtest.h>
 #include <HeatingRod.h>
+#include <TimeProviderSim.h>
 
 class HeatingRodTest: public ::testing::Test{
 public:
     HeatingRodTest(){}
 
     virtual void SetUp() override {
+        time = TimeProviderSim::getInstance();
         heatingRod = std::make_unique<HeatingRod>("heatingRod0",1000.f);
+        heatingRod->set_time_provider(*time);
         heatingRod->timing.max_on = std::chrono::duration<int,std::milli>(0); // infinite
         heatingRod->temperature_hysteresis.max = 50;
         heatingRod->temperature_hysteresis.min = 45;
@@ -24,6 +27,7 @@ public:
 
     std::unique_ptr<HeatingRod> heatingRod;
     std::vector<bool> switch_pwr_calls;
+    TimeProvider* time;
 };
 
 
@@ -103,11 +107,11 @@ TEST_F(HeatingRodTest, TurnOff2){
 
     std::vector<std::pair<bool,float>> result;
 
-    const clock_t start = clock();
-    while (start + 3000 > clock()){
+    const milliseconds start = time->get_time();
+    while (start + milliseconds(3000) > time->get_time()){
         heatingRod->allow_power(0);
         result.push_back({heatingRod->on,heatingRod->using_power()});
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        time->sleep_for(std::chrono::milliseconds(1000));
     }
 
     std::vector<std::pair<bool,float>> expected = {
@@ -134,7 +138,7 @@ TEST_F(HeatingRodTest, TempBetweenMinAndMax){
     heatingRod->read_temperature = []()->float{return 47.23f;};
     EXPECT_TRUE(heatingRod->allow_power(1200));
 
-    std::vector<bool> exp_sw_pwr_calls = {false};
+    std::vector<bool> exp_sw_pwr_calls = {false, true};
     EXPECT_EQ(switch_pwr_calls, exp_sw_pwr_calls);
 }
 
@@ -192,10 +196,10 @@ public:
     static inline const milliseconds tolerance{50};
 
 private:
-    bool on;
-    float power;
-    milliseconds time_on;
-    milliseconds time_off;
+    bool on{false};
+    float power{0.f};
+    milliseconds time_on{0};
+    milliseconds time_off{0};
 };
 
 TEST_F(HeatingRodTest, MaxTimeOn){
@@ -210,11 +214,11 @@ TEST_F(HeatingRodTest, MaxTimeOn){
 
     std::vector<TestResult> result;
 
-    const clock_t start = clock();
-    while (start + 700 > clock()){
+    const milliseconds start = time->get_time();
+    while (start + milliseconds(700) > time->get_time()){
         heatingRod->allow_power(1200);
         result.push_back(TestResult(heatingRod->on,heatingRod->using_power(),heatingRod->on_time(), heatingRod->off_time()));
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        time->sleep_for(std::chrono::milliseconds(102));
     }
 
     std::vector<TestResult> expected = {
@@ -255,7 +259,7 @@ TEST_F(HeatingRodTest, MinTimeOn){
         heatingRod->allow_power(pwr);
         heatingRod->allow_power(0);
         result.push_back(TestResult(heatingRod->on,heatingRod->using_power(),heatingRod->on_time(), heatingRod->off_time()));
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        time->sleep_for(std::chrono::milliseconds(200));
     }
 
     std::vector<TestResult> expected = {
@@ -293,7 +297,7 @@ TEST_F(HeatingRodTest, MinTimeOff){
     for(const auto& pwr: pwr_steps){
         heatingRod->allow_power(pwr);
         result.push_back(TestResult(heatingRod->on,heatingRod->using_power(),heatingRod->on_time(), heatingRod->off_time()));
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        time->sleep_for(std::chrono::milliseconds(200));
     }
 
     std::vector<TestResult> expected = {
@@ -335,7 +339,7 @@ TEST_F(HeatingRodTest, MaxMinTimeOn){
     for(const auto& pwr: pwr_steps){
         heatingRod->allow_power(pwr);
         result.push_back(TestResult(heatingRod->on,heatingRod->using_power(),heatingRod->on_time(), heatingRod->off_time()));
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        time->sleep_for(std::chrono::milliseconds(203));
     }
 
     std::vector<TestResult> expected = {

@@ -15,7 +15,12 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/HomeMaintenance/PowerManagement.git
     GIT_TAG main
 )
-FetchContent_MakeAvailable(PowerManagement)
+FetchContent_Declare(
+    TimeProvider
+    GIT_REPOSITORY https://github.com/HomeMaintenance/TimeProvider.git
+    GIT_TAG main
+)
+FetchContent_MakeAvailable(PowerManagement TimeProvider)
 
 add_library(
     HeatingRod
@@ -23,7 +28,7 @@ add_library(
     HeatingRod.cpp
 )
 target_include_directories(HeatingRod PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(HeatingRod PUBLIC PowerManagement)
+target_link_libraries(HeatingRod PUBLIC PowerManagement TimeProvider TimeProviderSim)
 
 # target_compile_definitions(HeatingRod PRIVATE HEATINGROD_DEBUG=1)
 

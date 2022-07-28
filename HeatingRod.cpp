@@ -37,7 +37,7 @@ bool HeatingRod::turn_on(){
         state = State::ready;
         return true;
     }
-    // blocked by cool download
+    // blocked by cooldown
     state = State::cool_down;
     log("blocked by cool down");
     return false;

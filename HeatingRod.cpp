@@ -115,7 +115,7 @@ bool HeatingRod::allow_power(float power){
             first_allow = false;
             return turn_on();
         }
-        return true;
+        return false;
     }
 }
 

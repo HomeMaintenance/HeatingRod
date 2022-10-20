@@ -12,7 +12,7 @@ public:
 
     static const std::string type;
 
-    virtual float using_power() override;
+    virtual float using_power() const override;
     virtual bool allow_power(float power) override;
 
     struct Timing{

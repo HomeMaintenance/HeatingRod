@@ -8,7 +8,7 @@ HeatingRod::HeatingRod(std::string name, float power): PowerSink(name){
     set_requesting_power(power, power);
 }
 
-float HeatingRod::using_power(){
+float HeatingRod::using_power() const {
     return get_allowed_power();
 }
 
